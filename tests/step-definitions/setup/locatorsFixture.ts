@@ -51,47 +51,6 @@ const pages: Pages = {
       },
     },
   },
-  "Terms and Conditions": {
-    route: "https://www.bauerlegal.co.uk/website-terms-of-use-20240805",
-    urlRegex: ".*website-terms-of-use-20240805",
-    locatorRegex: "",
-  },
-  "Privacy Policy": {
-    route: "https://www.bauerlegal.co.uk/privacy-policy-20240722",
-    urlRegex: ".*privacy-policy-20240722",
-    locatorRegex: "",
-  },
-  "Speak Up": {
-    route: "https://www.bauerlegal.co.uk/speak-up/",
-    urlRegex: ".*speak-up",
-    locatorRegex: "",
-  },
-  "Competition Terms & Conditions": {
-    route:
-      "https://www.bauerlegal.co.uk/competition-general-terms-and-conditions-20240625",
-    urlRegex: ".*competition-general-terms-and-conditions-20240625",
-    locatorRegex: "",
-  },
-  "Cookie Policy": {
-    route: "https://www.bauerlegal.co.uk/cookie-policy-20240809",
-    urlRegex: ".*cookie-policy-20240809",
-    locatorRegex: "",
-  },
-  Careers: {
-    route: "https://www.bauermedia.co.uk/join/careers/",
-    urlRegex: ".*join/careers/",
-    locatorRegex: "",
-  },
-  Support: {
-    route: "https://support.hellorayo.co.uk/hc/en-gb",
-    urlRegex: ".*support.hellorayo.co.uk/hc/en-gb",
-    locatorRegex: "",
-  },
-  "Advertise with us": {
-    route: "https://www.bauermedia.co.uk/brands/",
-    urlRegex: ".*brands/",
-    locatorRegex: "",
-  },
 };
 
 const commonElements: Elements = {
