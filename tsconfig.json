@@ -1,15 +1,12 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@rayo/typescript-config/base.json",
   "compilerOptions": {
-    "target": "es2021",
-    "module": "commonjs",
-    "strict": true,
-    "noEmit": true,
-    "useUnknownInCatchVariables": false,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "baseUrl": "./tests"
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
+    "baseUrl": "./tests",
+    "paths": {
+      "@/helpers/*": ["helpers/*"]
+    }
   },
   "include": ["./global.d.ts", "tests", "*.ts", "tests/steps"]
 }
