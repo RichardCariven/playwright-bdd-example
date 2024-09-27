@@ -3,10 +3,11 @@
   "extends": "tooling/typescript-config/base.json",
   "compilerOptions": {
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
-    "baseUrl": "./tests",
-    "paths": {
-      "@/helpers/*": ["helpers/*"]
-    }
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "jsx": "react",
+    "noEmit": true
   },
-  "include": ["./global.d.ts", "tests", "*.ts", "tests/steps"]
+  "include": ["."],
+  "exclude": ["dist", "node_modules"]
 }
