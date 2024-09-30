@@ -1,0 +1,75 @@
+{
+  "name": "@rayo/ui",
+  "version": "1.0.0",
+  "license": "MIT",
+  "exports": {
+    "./components": "./src/components/index.ts",
+    "./storybook/config": "./src/storybook/config.ts",
+    "./storybook/preview": "./src/storybook/preview.tsx",
+    "./storybook/modes": "./src/storybook/modes.ts",
+    "./tailwind/config.js": "./src/tailwind/config.js",
+    "./tailwind/globals": "./src/tailwind/globals.ts",
+    "./tailwind/utils/": "./src/tailwind/utils/",
+    "./tailwind/globals.css": "./src/tailwind/globals.css",
+    "./fonts": "./src/fonts/index.ts",
+    "./icons/": "./src/components/Icons/",
+    "./logos/": "./src/components/Logos/",
+    "./hooks": "./src/hooks/index.ts"
+  },
+  "typesVersions": {
+    "*": {
+      "components": [
+        "./src/components/index.ts"
+      ],
+      "icons/*": [
+        "./src/components/Icons/*"
+      ],
+      "logos/*": [
+        "./src/components/Logos/*"
+      ],
+      "storybook/*": [
+        "./src/storybook/*"
+      ],
+      "tailwind/*": [
+        "./src/tailwind/*"
+      ],
+      "fonts": [
+        "./src/fonts/index.ts"
+      ],
+      "hooks": [
+        "./src/hooks/index.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "format": "prettier . --check --cache --cache-location='node_modules/.cache/.prettiercache'",
+    "format:fix": "prettier . --write --cache --cache-location='node_modules/.cache/.prettiercache' --log-level=warn",
+    "lint": "eslint . --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
+    "lint:fix": "eslint . --fix --cache --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "1.0.2",
+    "class-variance-authority": "0.7.0",
+    "clsx": "2.1.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwind-merge": "2.2.1",
+    "usehooks-ts": "3.1.0"
+  },
+  "devDependencies": {
+    "@rayo/eslint": "*",
+    "@rayo/typescript-config": "*",
+    "@types/react": "18.3.3",
+    "autoprefixer": "10.4.17",
+    "eslint": "8.56.0",
+    "postcss": "8.4.35",
+    "tailwindcss": "3.4.1",
+    "typescript": "5.5.3"
+  },
+  "peerDependencies": {
+    "react": "18.3.1"
+  }
+}

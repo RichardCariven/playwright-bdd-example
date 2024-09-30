@@ -1,0 +1,25 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# .md files - we don't have any eslint plugin to handle .md files. prettier is enough.
+*.md
+
+# dependencies
+node_modules
+
+#turbo
+.turbo/
+
+.pnp
+.pnp.js
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# turbo
+.turbo

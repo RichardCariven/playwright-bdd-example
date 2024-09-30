@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@rayo/typescript-config/base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
+    "noEmit": true,
+    "resolveJsonModule": true
+  }
+}

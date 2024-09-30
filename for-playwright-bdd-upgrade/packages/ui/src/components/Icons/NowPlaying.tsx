@@ -1,0 +1,41 @@
+export function NowPlayingIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <rect
+        x="3.55554"
+        y="6.18698"
+        width="4.94873"
+        height="14.523"
+        rx="1.40619"
+      />
+      <rect
+        x="10.226"
+        y="9.33799"
+        width="4.94873"
+        height="16.531"
+        rx="1.40619"
+      />
+      <rect
+        x="16.8962"
+        y="10.302"
+        width="4.94873"
+        height="10.408"
+        rx="1.40619"
+      />
+      <rect
+        x="23.5667"
+        y="6.56128"
+        width="4.94873"
+        height="19.3077"
+        rx="1.40619"
+      />
+    </svg>
+  );
+}

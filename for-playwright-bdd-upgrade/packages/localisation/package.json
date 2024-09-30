@@ -1,0 +1,56 @@
+{
+  "name": "@rayo/localisation",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./i18n": "./src/i18n.config.ts",
+    "./mocks": "./src/__mocks__/crowdinMocks.ts"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./src/index.ts"
+      ],
+      "server": [
+        "./src/server.ts"
+      ],
+      "i18n": [
+        "./src/i18n.config.ts"
+      ],
+      "mocks": [
+        "./src/__mocks__/crowdinMocks.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "format": "prettier . --check --cache --cache-location='node_modules/.cache/.prettiercache'",
+    "format:fix": "prettier . --write --cache --cache-location='node_modules/.cache/.prettiercache' --log-level=warn",
+    "lint": "eslint . --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
+    "lint:fix": "eslint . --fix --cache --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
+    "produce": "ts-node src/__scripts__/produce.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "encoding": "0.1.13",
+    "negotiator": "0.6.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "ts-node": "10.9.2"
+  },
+  "devDependencies": {
+    "@jest/globals": "29.7.0",
+    "@rayo/eslint": "*",
+    "@rayo/typescript-config": "*",
+    "@testing-library/react": "16.0.0",
+    "@types/node-fetch": "2.6.11",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "jest": "29.7.0",
+    "jest-environment-jsdom": "29.7.0",
+    "node-fetch": "3.3.2",
+    "ts-jest": "29.1.5"
+  }
+}

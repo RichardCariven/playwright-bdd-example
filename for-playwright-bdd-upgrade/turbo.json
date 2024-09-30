@@ -1,0 +1,87 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local", ".eslintrc.js"],
+  "globalEnv": ["CI", "NEXT_PUBLIC_DEVELOPMENT"],
+  "tasks": {
+    "topo": {
+      "dependsOn": ["^topo"]
+    },
+    "build": {
+      "env": [
+        "ANALYZE",
+        "VERCEL_GIT_COMMIT_REF",
+        "NODE_ENV",
+        "NEXT_PUBLIC_STAGE",
+        "NEXT_PUBLIC_TEST",
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "SENTRY_ORG",
+        "SENTRY_PROJECT",
+        "SENTRY_AUTH_TOKEN",
+        "SENTRY_DSN",
+        "NEXT_PUBLIC_ENV",
+        "OAUTH_VERIFY_DOMAIN",
+        "OAUTH_CLIENT_ID",
+        "OAUTH_CLIENT_SECRET_GB",
+        "EVENTS_API_ACCESS_KEY",
+        "RAYO_CONTENT_ACCESS_KEY",
+        "SUBSCRIPTIONS_ACCESS_KEY",
+        "NEXT_RUNTIME",
+        "SHEPHERD_ACCESS_KEY",
+        "REDIS_CACHE_HOST",
+        "CACHE_HANDLER_LOG_LEVEL",
+        "CACHE_GET_LOG",
+        "ENABLE_REDIS_CACHE",
+        "NEXTJS_BUILD_ID"
+      ],
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./apps/web/.env.vercel.production",
+        "./apps/web/.env.vercel.preview",
+        "!**/*.stories.{tsx,jsx,mdx}"
+      ]
+    },
+    "lint": {
+      "dependsOn": ["^topo"],
+      "outputs": ["node_modules/.cache/.eslintcache"]
+    },
+    "lint:fix": {
+      "dependsOn": ["^topo"],
+      "outputs": ["node_modules/.cache/.eslintcache"],
+      "cache": false
+    },
+    "check-types": {
+      "dependsOn": ["^topo"],
+      "outputs": ["node_modules/.cache/tsbuildinfo.json"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "clean": {
+      "cache": false
+    },
+    "test": {
+      "inputs": ["$TURBO_DEFAULT$", "./apps/web/.env.vercel.preview"]
+    },
+    "test:watch": {
+      "inputs": ["$TURBO_DEFAULT$", "./apps/web/.env.vercel.preview"]
+    },
+    "e2e": {
+      "env": ["BASE_URL"]
+    },
+    "e2e:ui": {
+      "cache": false
+    },
+    "format": {
+      "dependsOn": ["^topo"],
+      "outputs": ["node_modules/.cache/.prettiercache"]
+    },
+    "format:fix": {
+      "dependsOn": ["^topo"],
+      "outputs": ["node_modules/.cache/.prettiercache"],
+      "cache": false
+    }
+  }
+}

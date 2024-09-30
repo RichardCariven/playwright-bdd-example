@@ -1,0 +1,6 @@
+.features-gen
+.turbo
+cucumber-report
+node_modules
+playwright-report
+test-results

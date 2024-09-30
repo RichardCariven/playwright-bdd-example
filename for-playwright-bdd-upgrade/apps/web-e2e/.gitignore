@@ -1,0 +1,55 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# testing
+coverage
+.eslintcache
+tsconfig.tsbuildinfo
+
+# next.js
+.next
+.next/
+out/
+build
+.swc/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env.*local
+
+# turbo
+.turbo
+
+# ui
+dist/
+
+# ide
+.idea
+.vscode
+
+# storybook
+storybook.log
+storybook-static
+build-storybook.log
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+.turbo/
+/.features-gen/
+/cucumber-report/
+

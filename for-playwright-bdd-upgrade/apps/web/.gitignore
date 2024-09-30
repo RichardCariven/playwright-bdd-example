@@ -1,0 +1,22 @@
+# Usual suspects
+node_modules
+.DS_Store
+*.log
+
+# Next
+.next
+.swc
+
+# Turbo
+.turbo
+
+# IDEs
+.idea
+.vscode
+
+# Storybook
+storybook-static
+
+# Secrets
+.env.*local
+*.pem
