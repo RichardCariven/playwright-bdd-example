@@ -1,0 +1,52 @@
+name: Publish to Amazon ECR
+
+on:
+  workflow_call:
+    inputs:
+      test_image_name:
+        required: true
+        type: string
+      aws_account_id:
+        required: true
+        type: string
+      aws_region:
+        required: true
+        type: string
+      github_repository:
+        required: true
+        type: string
+      docker_tag:
+        required: true
+        type: string
+
+jobs:
+  publish_ecr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+      - name: Load Docker image from tarball
+        run: docker load < image.tar
+      - name: Create image names
+        run: |
+          IMAGE_NAME=$(echo "${{ inputs.github_repository }}" | tr '[:upper:]' '[:lower:]'):${{ inputs.docker_tag }}
+          AWS_IMAGE_NAME=${{ inputs.aws_account_id }}.dkr.ecr.${{ inputs.aws_region }}.amazonaws.com/$IMAGE_NAME
+          echo "AWS_IMAGE_NAME=$AWS_IMAGE_NAME" >> "$GITHUB_ENV"
+      - name: character-replacement-test
+        run: |
+          REPO=${{ github.repository }}
+          SANITISED_REPO_NAME="${REPO//\//-}"
+          echo "SANITISED_REPO_NAME=$SANITISED_REPO_NAME" >> "$GITHUB_ENV"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/shared-${{ env.SANITISED_REPO_NAME }}-github-oidc
+          aws-region: ${{ inputs.aws_region }}
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Push to Amazon ECR
+        run: |
+          docker tag ${{ inputs.test_image_name }} ${{ env.AWS_IMAGE_NAME }}
+          docker push ${{ env.AWS_IMAGE_NAME }}

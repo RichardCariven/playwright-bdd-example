@@ -1,0 +1,150 @@
+name: Playwright
+on:
+  pull_request: # Default types are "opened", "synchronize" and "reopened" - Here we only want to run
+    # when not "draft" and therefor we need to have "ready_for_review" as well.
+    types: [opened, synchronize, reopened, ready_for_review]
+
+  # In the future we will want to allow ArgoCD to trigger this workflow upon
+  # deployment instead of waiting for the deployment. When we do the URL can be
+  # retrieved using `${{ github.event.client_payload.url }}`
+  # repository_dispatch:
+  #   types:
+  #     - "argocd-sync-success"
+
+jobs:
+  deploy:
+    name: "Wait for deploy"
+    runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.waitForDeploy.outputs.url }}
+
+    steps:
+      - name: Wait for deploy
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
+        id: waitForDeploy
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allow_inactive: true
+          max_timeout: 300
+          check_interval: 10
+
+      - name: Set deploy URL
+        run: |
+          echo "url=${{steps.waitForDeploy.outputs.url}}" >> "$GITHUB_OUTPUT"
+          echo "url=${{steps.waitForDeploy.outputs.url}}"
+
+  playwright:
+    name: "Playwright - ${{ matrix.project }}"
+    needs: deploy
+
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [Chrome-Desktop, Safari-Desktop, Iphone, Android-Tablet]
+        # if we need to increase number of shards make sure total equals the number in the index
+        shardIndex: [1, 2]
+        shardTotal: [2]
+
+    timeout-minutes: 60
+
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.47.2-jammy
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # From git v2.35.2 onwards this config needs to be set, so that
+      # git operations are permitted in the directory.
+      # https://github.com/actions/runner-images/issues/6775
+
+      - name: Add safe git directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Setup Node 18 with Yarn cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+        working-directory: ./apps/web-e2e
+
+      - name: Determine PR Status
+        id: pr-status
+        run: |
+          if [ "${{ github.event.pull_request.draft == false }}" = "true" ]; then
+            echo "PR_STATUS=currents" >> $GITHUB_ENV
+          else
+            echo "PR_STATUS=not_Currents" >> $GITHUB_ENV
+          fi
+
+      # This will install the browsers and their os dependencies on the runner
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      #      run the tests using Currents as the reporter, this will be for PR's in review only
+      - name: Run Playwright Bdd with Currents, PR review
+        if: env.PR_STATUS == 'currents'
+        env: # This will override the default base url of http://localhost:3000
+          BASE_URL: ${{ needs.deploy.outputs.url }}
+          # Project id and record key are found in the Currents dashboard
+          # https://app.currents.dev/organizations/6488af0c3f1ab1ee7a703273/projects/bkG1uT
+
+        run: >
+          npx bddgen --tags 'not @overnight' && npx pwc --project ${{matrix.project}}
+          --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+          --key ${{ secrets.CURRENTS_RECORD_KEY }} --project-id bkG1uT
+          --ci-build-id reporter-${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt }}
+        working-directory: ./apps/web-e2e
+
+      #      run the tests using the local Playwright reporter as the reporter
+      - name: Run Playwright BDD for Draft PR
+        if: env.PR_STATUS == 'not_Currents'
+
+        env: # This will override the default base url of http://localhost:3000
+          BASE_URL: ${{ needs.deploy.outputs.url }}
+        working-directory: ./apps/web-e2e
+        run: npx bddgen --tags 'not @overnight' && npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+
+      - name: upload blob report to Github Actions
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled()  &&  env.PR_STATUS == 'not_Currents' }}
+        with:
+          name: blob-report-${{ matrix.project }} --shard=${{ matrix.shardIndex }}
+          path: ./apps/web-e2e/blob-report/
+          retention-days: 1
+
+  # below is for manually creating the report in Github and merging back together, Currents does this automaticaly.
+  merge-reports: # Merge reports after playwright-tests, even if some shards have failed
+    needs: playwright
+    if: ${{ (github.event.pull_request.draft == true) && (!cancelled())}}
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Download blob reports from GitHub Actions Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+
+      - name: Merge into HTML Report
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+      - name: Upload HTML report - Link to report is here
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report--attempt-${{ github.run_attempt }}
+          path: /home/runner/work/rayo-web/rayo-web/playwright-report
+          retention-days: 7

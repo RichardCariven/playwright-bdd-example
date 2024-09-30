@@ -1,0 +1,46 @@
+name: Delete Preview Docker Image
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
+  packages: write
+
+env:
+  AWS_REGION: "eu-west-2"
+  AWS_ACCOUNT_ID: "800508964711"
+
+jobs:
+  ###########################################################
+  # Delete Docker image from GitHub Container Registry
+  ###########################################################
+  delete_ghcr_image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Docker image from GitHub Container Registry
+        uses: actions/delete-package-versions@v5.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          package-type: container
+          package-name: ${{ github.repository }}
+          package-version-ids: pr-${{ github.event.number }}
+
+  ###########################################################
+  # Delete Docker image from AWS ECR
+  ###########################################################
+  delete_ecr_image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/shared-${{ github.repository }}-github-oidc
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Delete Docker image from AWS ECR
+        run: |
+          aws ecr batch-delete-image --repository-name ${{ github.repository }} --image-ids imageTag=pr-${{ github.event.number }}

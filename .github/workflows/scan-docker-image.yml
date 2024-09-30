@@ -1,0 +1,51 @@
+name: Scan Docker Image Workflow
+
+on:
+  workflow_call:
+    inputs:
+      test_image_name:
+        required: true
+        type: string
+      wiz_scanning_policy:
+        required: true
+        type: string
+    secrets:
+      uk_audio_wiz_client_id:
+        required: true
+      uk_audio_wiz_client_secret:
+        required: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+      - name: Load Docker image from tarball
+        run: docker load < image.tar
+      - name: Download Wiz CLI
+        run: |
+          curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
+          ./wizcli --help
+      - name: Authenticate to Wiz
+        run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+        env:
+          WIZ_CLIENT_ID: ${{ secrets.uk_audio_wiz_client_id }}
+          WIZ_CLIENT_SECRET: ${{ secrets.uk_audio_wiz_client_secret }}
+      - name: Run wiz-cli docker image scan
+        run: |
+          ./wizcli docker scan --image ${{ inputs.test_image_name }} --policy "${{ inputs.wiz_scanning_policy }}" -f human -o scan-output.json,json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scan
+          path: ./scan-output.json
+      - name: Create Markdown table and set as output
+        if: always()
+        run: |
+          ls -l
+          markdownTable=$(python3 github-scripts/generate_table.py scan-output.json)
+          echo "$markdownTable" >> $GITHUB_STEP_SUMMARY

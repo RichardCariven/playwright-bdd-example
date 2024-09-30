@@ -1,0 +1,55 @@
+name: Build Docker Image Workflow
+
+on:
+  workflow_call:
+    inputs:
+      test_image_name:
+        required: true
+        type: string
+      vercel_git_commit_ref:
+        required: true
+        type: string
+      enable_redis_cache:
+        required: true
+        type: boolean
+    secrets:
+      next_public_sentry_dsn:
+        required: true
+      sentry_org:
+        required: true
+      sentry_project:
+        required: true
+      sentry_auth_token:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create the destination directory structure and copy package.json files
+        run: ./prepare_directories.sh
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build Docker image
+        run: |
+          docker build \
+            --target final \
+            --tag ${{ inputs.test_image_name }} \
+            --build-arg VERCEL_GIT_COMMIT_REF=${{ inputs.vercel_git_commit_ref }} \
+            --build-arg NEXT_PUBLIC_SENTRY_DSN=${{ secrets.next_public_sentry_dsn }} \
+            --build-arg SENTRY_ORG=${{ secrets.sentry_org }} \
+            --build-arg SENTRY_PROJECT=${{ secrets.sentry_project }} \
+            --build-arg SENTRY_AUTH_TOKEN=${{ secrets.sentry_auth_token }} \
+            --build-arg ENABLE_REDIS_CACHE=${{ inputs.enable_redis_cache }} \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
+            .
+      - name: Save Docker image as a tarball
+        run: |
+          docker save ${{ inputs.test_image_name }} > image.tar
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: image.tar

@@ -1,0 +1,107 @@
+name: Docker Image CI (Production)
+
+# Events that trigger workflows
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+  workflow_dispatch: # Manual triggers only
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
+  packages: write
+
+jobs:
+  ###########################################################
+  # Create a tag for the Docker image
+  ###########################################################
+  create_tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' }}
+      - name: Bump version and push tag
+        if: ${{ github.event.pull_request.merged == true }}
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      docker_tag: ${{ steps.tag_version.outputs.new_tag }}
+
+  ###########################################################
+  # Build Docker image
+  ###########################################################
+  build_image:
+    if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' }}
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      test_image_name: "rayo-web:test"
+      vercel_git_commit_ref: ${{ github.ref_name }}
+      enable_redis_cache: true
+    secrets:
+      next_public_sentry_dsn: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+      sentry_org: ${{ secrets.SENTRY_ORG }}
+      sentry_project: ${{ secrets.SENTRY_PROJECT }}
+      sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+  ###########################################################
+  # Scan Docker image with Wiz
+  ###########################################################
+  scan_image:
+    needs: build_image
+    uses: ./.github/workflows/scan-docker-image.yml
+    if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' }}
+    with:
+      test_image_name: "rayo-web:test"
+      wiz_scanning_policy: "Default vulnerabilities policy"
+    secrets:
+      uk_audio_wiz_client_id: ${{ secrets.UK_AUDIO_WIZ_CLIENT_ID }}
+      uk_audio_wiz_client_secret: ${{ secrets.UK_AUDIO_WIZ_CLIENT_SECRET }}
+
+  ###########################################################
+  # Push to GitHub Container Registry
+  ###########################################################
+  publish_to_ghcr:
+    if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' }}
+    needs: [create_tag, build_image, scan_image]
+    uses: ./.github/workflows/publish-ghcr.yml
+    with:
+      test_image_name: "rayo-web:test"
+      github_repository: ${{ github.repository }}
+      docker_tag: ${{ needs.create_tag.outputs.docker_tag }}
+
+  ###########################################################
+  # Push to AWS ECR
+  ###########################################################
+  publish_to_ecr:
+    if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' }}
+    needs: [create_tag, build_image, scan_image]
+    uses: ./.github/workflows/publish-ecr.yml
+    with:
+      test_image_name: "rayo-web:test"
+      aws_account_id: "800508964711"
+      aws_region: "eu-west-2"
+      github_repository: ${{ github.repository }}
+      docker_tag: ${{ needs.create_tag.outputs.docker_tag }}
+
+  ###########################################################
+  # Trigger Helm Chart update
+  ###########################################################
+  trigger_helm_chart:
+    needs: [create_tag, publish_to_ecr, publish_to_ghcr]
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Workflow Dispatch
+        uses: benc-uk/workflow-dispatch@v1.2.3
+        with:
+          workflow: autoupdate.yml
+          token: "${{ secrets.HELMCHARTS_ACTIONS_ACCESS_TOKEN }}"
+          inputs: '{ "version": "${{ needs.create_tag.outputs.docker_tag }}", "chart_name": "helix-web" }'
+          repo: BauerXcel/uk-audio-services-helm-charts
+          ref: "main"

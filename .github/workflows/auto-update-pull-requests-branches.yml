@@ -1,0 +1,14 @@
+name: autoupdate
+
+on:
+  push:
+
+jobs:
+  autoupdate:
+    name: Auto-updates pull requests branches whenever changes land on their destination branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto Update
+        uses: chinthakagodawita/autoupdate@v1.7.0
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

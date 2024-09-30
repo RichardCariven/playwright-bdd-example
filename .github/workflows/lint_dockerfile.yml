@@ -1,0 +1,21 @@
+name: Lint Dockerfile
+
+# Events that trigger workflows
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
+on:
+  pull_request:
+    # Examples of other events that can trigger workflows:
+    # workflow_dispatch: # Manual triggers only
+    # tags:
+    #   - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Dockerfile Linter https://github.com/hadolint/hadolint
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile

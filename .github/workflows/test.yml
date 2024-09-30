@@ -1,0 +1,28 @@
+name: Test
+on:
+  pull_request:
+    # Default types are "opened", "synchronize" and "reopened" - Here we only want to run
+    # when not "draft" and therefor we need to have "ready_for_review" as well.
+    types: [opened, synchronize, reopened, ready_for_review]
+jobs:
+  test:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1/2, 2/2]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install packages
+        run: yarn install --frozen-lockfile
+
+      - name: Run test
+        run: yarn test --ci --passWithNoTests --shard=${{ matrix.shard }}
