@@ -1,0 +1,43 @@
+{
+  "name": "storybook",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "format": "prettier . --check --cache --cache-location='node_modules/.cache/.prettiercache'",
+    "format:fix": "prettier . --write --cache --cache-location='node_modules/.cache/.prettiercache' --log-level=warn",
+    "lint": "eslint . --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
+    "lint:fix": "eslint . --fix --cache --cache-location 'node_modules/.cache/.eslintcache' --max-warnings 0",
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@chromatic-com/storybook": "1.9.0",
+    "@rayo/eslint": "*",
+    "@rayo/typescript-config": "*",
+    "@rayo/ui": "*",
+    "@storybook/addon-essentials": "8.0.4",
+    "@storybook/addon-interactions": "8.0.4",
+    "@storybook/addon-links": "8.0.4",
+    "@storybook/addon-themes": "8.0.4",
+    "@storybook/jest": "0.2.3",
+    "@storybook/nextjs": "8.0.4",
+    "@storybook/react": "8.0.4",
+    "@storybook/test": "8.0.4",
+    "@storybook/testing-library": "0.2.2",
+    "@testing-library/jest-dom": "6.4.6",
+    "@testing-library/react": "16.0.0",
+    "@types/react": "18.3.3",
+    "chromatic": "11.7.1",
+    "jest-mock": "29.7.0",
+    "msw-storybook-addon": "2.0.0--canary.122.06f0c92.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "storybook": "8.0.4",
+    "storybook-addon-module-mock": "1.1.5",
+    "typescript": "5.5.3"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@rayo/typescript-config/base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "noEmit": true,
+    "module": "esnext",
+    "resolveJsonModule": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@web/components/*": ["components/*"],
+      "@web/hooks/*": ["hooks/*"],
+      "@web/helpers/*": ["helpers/*"],
+      "@web/app/*": ["app/*"],
+      "@web/actions/*": ["actions/*"],
+      "@web/config": ["config/config"],
+      "@web/fonts": ["fonts/index"]
+    },
+    "strictNullChecks": true
+  },
+  "include": ["next-env.d.ts", ".next/types/**/*.ts", "src", "*.ts"]
+}

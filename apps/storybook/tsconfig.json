@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@rayo/typescript-config/base.json",
+  "include": [
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
+    "config/**/*.ts",
+    "config/**/*.tsx"
+  ],
+  "compilerOptions": {
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "paths": {
+      "@web/components/*": ["../web/src/components/*"],
+      "@web/hooks/*": ["../web/src/hooks/*"],
+      "@web/helpers/*": ["../web/src/helpers/*"],
+      "@web/app/*": ["../web/src/app/*"],
+      "@web/actions/*": ["../web/src/actions/*"],
+      "@web/config": ["../web/src/config/config"],
+      "@web/fonts": ["../web/src/fonts/index"]
+    }
+  }
+}
