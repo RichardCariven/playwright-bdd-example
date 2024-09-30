@@ -1,6 +1,6 @@
-import { test as base } from "playwright-bdd";
+import { locatorsFixture } from "./locatorsFixture";
 
-export const test = base.extend({
+export const test = locatorsFixture.extend({
   locale: async ({ $tags, locale }, use) => {
     if ($tags.includes("@LocaleFi")) {
       locale = "fi";

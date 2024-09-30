@@ -1,6 +1,5 @@
 import { type Elements, type GlobalConfig, type Pages } from "env/global";
-
-import test from "@playwright/test";
+import { test } from "playwright-bdd";
 
 const pages: Pages = {
   Home: {
